@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>歌单</title>
+    <!-- <style>
+      .wraper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 1200px;
+        height: auto;
+        padding: 20px;
+        margin: 0 auto;
+        /* border: 1px solid black; */
+      }
+      .item {
+        width: 200px;
+        height: 200px;
+        margin: 20px 1px 20px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .item-img {
+        width: 200px;
+        height: 100px;
+        margin-right: 10px;
+        border-radius: 5px;
+      }
+      .item-text {
+        width: 200px;
+        height: 50px;
+        line-height: 20px;
+      }
+      .song_list {
+        background-color: brown;
+        margin: 20px 1px 20px 20px;
+      }
+    </style> -->
+  </head>
+  <body>
+    <!-- <div class="item">
+      <img class="item-img" />
+      <p class="item-text"></p>
+    </div> -->
+    <!-- <div class="song_box"></div>
+    <div class="song_list">
+      <p class="list_name"></p>
+    </div> -->
+    <script>
+      const ajax = (method, url, data) => {
+        return new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(method, url, true);
+          xhr.send(data);
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+              if (
+                (xhr.status >= 200 && xhr.status < 300) ||
+                xhr.status == 304
+              ) {
+                res(JSON.parse(xhr.responseText));
+              } else {
+                rej("失败");
+              }
+            }
+          };
+        });
+      };
+
+      ajax("get", "http://music.eleuu.com/personalized?limit=10").then(
+        (res) => {
+          const { result: arr } = res;
+          // console.log(arr);
+        
+          for (i = 0; i < arr.length; i++) {
+            const ID = arr[i].id;
+            const name = arr[i].name;
+            const picUrl = arr[i].picUrl;
+
+            // 创建标签
+            const body = document.getElementsByTagName("body")[0];
+            const item = document.createElement("div");
+            const item_img = document.createElement("img");
+            const item_text = document.createElement("text");
+            // 装填数据到标签内
+            item.className = "item";
+            item_img.src = picUrl;
+            item_img.className = "item-img";
+            item_text.innerText = name;
+            item_text.className = "item";
+            item_text.item = ID;
+            // 将img text标签装填到div标签内
+            item.appendChild(item_img);
+            item.appendChild(item_text);
+            body.appendChild(item);
+
+              item.style=
+              "width: 200px;height:200px; margin: 20px 1px 20px 20px; border-radius: 6px;font-size: 14px; transition: all 0.5s;display: flex; align-items: center;justify-content: center";
+              item_img.style.cssText=
+              "width: 200px; height: 100px; margin-right: 10px;border-radius: 5px"
+            
+          
+            item.onclick = () => {
+              // body.style = "display:none;";
+              const ID = item_text.item;
+              console.log(ID);
+              ajax(
+                "get",
+                `http://music.eleuu.com/playlist/detail?id=${ID}`
+              ).then((res) => {
+                const { result: arr } = res;
+                // console.log(res);
+                const tracks = res.playlist.tracks;
+
+                for (let i = 0; i < tracks.length; i++) {
+                  const tracks = res.playlist.tracks;
+                  const name = tracks[i].name;
+                  // console.log(name);
+                  const body = document.getElementsByTagName("body")[0];
+                  const song_list = document.createElement("div");
+                  const list_name = document.createElement("p");
+
+                  body.appendChild(song_list);
+                  song_list.appendChild(list_name);
+                  list_name.innerText = tracks[i].name;
+
+                  //  获取id
+                  const item2 = tracks[i].id;
+                  // console.log(item2);
+                  const lyric = item2;
+                
+                  list_name.onclick = () => {
+                    ajax(
+                      "get",
+                      `http://music.eleuu.com/lyric?id=${lyric}`
+                    ).then((res) => {
+                      const { result: arr } = res;
+
+                      // console.log(res);
+                      const lyric = res.lrc.lyric;
+                      const body = document.getElementsByTagName("body")[0];
+                      const div = document.createElement("div");
+                      const p = document.createElement("p");
+
+                      p.innerText = lyric;
+                      body.appendChild(div);
+                      div.appendChild(p);
+                      console.log(lyric);
+                    });
+                  };
+                }
+              });
+            };
+          }
+        }
+      );
+    </script>
+  </body>
+</html>
